@@ -1,6 +1,7 @@
 package seca2;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -14,6 +15,9 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+
+import javax.xml.bind.*;
+
 
 public class Terminal {
 
@@ -32,22 +36,40 @@ public class Terminal {
 
 	public static final String inputFileName="Terminal.xml";
 	public static final String outputFileName="Response.xml";
-	public static String logFileName="";
+	public static String logFileName="default.log";
+	protected static TerminalXML terminalXML=null;
 
+	protected static void parseXML()
+	{
+		JAXBContext jc;
+        Unmarshaller unmarshaller;
+        Marshaller marshaller;
+
+		try {
+			jc = JAXBContext.newInstance(TerminalXML.class);
+			unmarshaller = jc.createUnmarshaller();
+			terminalXML = ((TerminalXML) unmarshaller.unmarshal(new File(inputFileName)));
+			marshaller = jc.createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		} catch (JAXBException e) {
+			logger.log(Level.SEVERE, "could not parse Terminal.xml");
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
 	protected static void configure(String[] args)
 	{
-		serverHostName="127.0.0.1";
-		serverPort=1234;
-		if(args.length>0)
-			serverHostName=args[0];
-		if(args.length>1)
-			serverPort=new Integer(args[1]);
+		parseXML();
+		serverHostName=terminalXML.server.ip;
+		serverPort=terminalXML.server.port;
+		logFileName=terminalXML.outlog.path;
+		terminalXML=null; //no longer required
 		logger.log(Level.INFO, "successfully configured.");
+		configureLogger();
 	}
 
-	protected static void initLogger()
+	protected static void configureLogger()
 	{
-		logger=Logger.getGlobal();
 		FileHandler fileHandler;
 		try {
 			fileHandler = new FileHandler(logFileName, true);
@@ -131,7 +153,7 @@ public class Terminal {
 
     public static void main(String[] args)
     {
-    	initLogger();
+    	logger=Logger.getGlobal();
     	configure(args);
     	initAllConnections();
     	communicateWithServer();

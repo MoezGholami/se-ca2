@@ -1,6 +1,7 @@
 package seca2;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
