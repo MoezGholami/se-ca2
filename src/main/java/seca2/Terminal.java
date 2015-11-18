@@ -88,7 +88,7 @@ public class Terminal {
 			System.exit(1);
 		}
 		try {
-			fileOut=new FileOutputStream(outputFileName, true);
+			fileOut=new FileOutputStream(outputFileName, false);
 		} catch (FileNotFoundException e1) {
 			logger.log(Level.SEVERE, "could not open output file");
 			System.exit(1);

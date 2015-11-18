@@ -104,7 +104,7 @@ public class Clerk implements Runnable {
 		} catch (IOException e) {
 			Server.logger.log(Level.SEVERE, "could not send response for terminal: "+terminalXML.id);
 		}
-		Server.logger.info("for terminal: "+terminalXML.id+"respond sent successfully.");
+		Server.logger.info("for terminal: "+terminalXML.id+" respond sent successfully.");
 	}
 
 	public void run()
@@ -145,7 +145,6 @@ public class Clerk implements Runnable {
         	java.io.StringWriter sw=new StringWriter();
 			jc=JAXBContext.newInstance(ResponseXML.class);
 			marshaller = jc.createMarshaller();
-		    marshaller.setProperty(Marshaller.JAXB_ENCODING, encoding);
 		    marshaller.marshal(responseXML, sw);
 		    responseString=sw.toString();
 		} catch (JAXBException e) {
@@ -163,7 +162,7 @@ public class Clerk implements Runnable {
 		String pattern = "###,###";
 	    DecimalFormat decimalFormat = new DecimalFormat(pattern);
 	    String format;
-	    format = decimalFormat.format(b.toString());
+	    format = decimalFormat.format(b);
 		return format;
 	}
 }

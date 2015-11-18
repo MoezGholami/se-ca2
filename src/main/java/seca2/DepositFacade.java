@@ -43,10 +43,10 @@ public class DepositFacade {
 		ResponseXML.Response result=new ResponseXML.Response();
 		result.id=t.id;
 		result.depositId=t.depositId;
-		Deposit subject=findDepositById(t.id);
+		Deposit subject=findDepositById(t.depositId);
 		if(subject==null)
 		{
-			result.error=new DepositException.DepositNotFound(t.id).declaration();
+			result.error=new DepositException.DepositNotFound(t.depositId).declaration();
 			result.result=ResponseXML.Response.RESULT_FAILURE;
 			return result;
 		}

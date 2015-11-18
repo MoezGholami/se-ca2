@@ -1,9 +1,9 @@
 package seca2;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
@@ -79,8 +79,10 @@ public class Server {
 		String newCoreStr;
 		newCoreStr=gson.toJson(core);
 		try {
-			new PrintWriter(coreFineName).write(newCoreStr);
-		} catch (FileNotFoundException e) {
+			BufferedWriter writer = new BufferedWriter( new FileWriter(coreFineName));
+			writer.write(newCoreStr+"\n");
+			writer.close();
+		} catch (Exception e) {
 			logger.severe("could not save json, sync failed.");
 			return ;
 		}

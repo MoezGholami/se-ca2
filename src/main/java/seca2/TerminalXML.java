@@ -45,7 +45,7 @@ public class TerminalXML {
 		public String type;
 		@XmlAttribute
 		public String amount;
-		@XmlAttribute
+		@XmlAttribute(name="deposit")
 		public String depositId;
 	}
 
