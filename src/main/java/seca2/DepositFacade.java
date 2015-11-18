@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 
 public class DepositFacade {
 
-	public DepositFacade() {
+	public static final DepositFacade instance = new DepositFacade();
+	protected DepositFacade() {
 		// TODO Auto-generated constructor stub
 	}
 	protected class Deposit
