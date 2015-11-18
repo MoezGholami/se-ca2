@@ -37,6 +37,8 @@ public class TerminalXML {
 	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class Transaction
 	{
+		public static String ADD_TYPE="deposit";
+		public static String SUB_TYPE="withdraw";
 		@XmlAttribute
 		public String id;
 		@XmlAttribute
@@ -51,6 +53,6 @@ public class TerminalXML {
 	public static class Transactions
 	{
 		@XmlElement(name="transaction")
-		public List<Transaction> depositsRawList;
+		public List<Transaction> transactionList;
 	}
 }

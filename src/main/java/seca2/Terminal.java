@@ -23,7 +23,7 @@ public class Terminal {
 
 	public static final Charset encoding = Charset.forName("UTF-8");
 	public static final String END_OF_LINE="\n";
-	public static final int BUFFER_SIZE=16*1024;
+	public static final int BUFFER_SIZE=1*1024*1024;
 
 	protected static String serverHostName;
 	protected static int serverPort;
@@ -53,7 +53,6 @@ public class Terminal {
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		} catch (JAXBException e) {
 			logger.log(Level.SEVERE, "could not parse Terminal.xml");
-			e.printStackTrace();
 			System.exit(1);
 		}
 	}
@@ -64,8 +63,8 @@ public class Terminal {
 		serverPort=terminalXML.server.port;
 		logFileName=terminalXML.outlog.path;
 		terminalXML=null; //no longer required
-		logger.log(Level.INFO, "successfully configured.");
 		configureLogger();
+		logger.log(Level.INFO, "successfully configured.");
 	}
 
 	protected static void configureLogger()
@@ -110,16 +109,17 @@ public class Terminal {
 	{
 		int readCount=0;
 		try {
-			while((readCount=fileIn.read(buffer))>0)
-				socket.getOutputStream().write(buffer, 0, readCount);
+			readCount=fileIn.read(buffer);
+			socket.getOutputStream().write(buffer, 0, readCount);
+			socket.getOutputStream().flush();
 		} catch (IOException e) {
 			logger.log(Level.SEVERE,"could not send file.");
 			return ;
 		}
 		logger.log(Level.INFO, "request sent to server.");
 		try {
-			while((readCount=socket.getInputStream().read(buffer))>0)
-				fileOut.write(buffer, 0, readCount);
+			readCount=socket.getInputStream().read(buffer);
+			fileOut.write(buffer, 0, readCount);
 		} catch (IOException e) {
 			logger.log(Level.SEVERE,"could not receive response");
 		}

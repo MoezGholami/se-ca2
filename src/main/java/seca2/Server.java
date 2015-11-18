@@ -1,10 +1,15 @@
 package seca2;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigDecimal;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.logging.*;
+
+import com.google.gson.Gson;
 
 public class Server {
 
@@ -12,17 +17,50 @@ public class Server {
 	protected static Scanner stdinScanner;
 	protected static SocketDaemon socketDaemon;
 	protected static Thread socketThread;
+	protected static String coreFineName="core.json";
+	public static CoreJson core;
 
+	public static Logger logger;
+
+	protected static void loadCore()
+	{
+		String s;
+		try {
+			Scanner sc=new Scanner(new File(coreFineName));
+			s = sc.useDelimiter("\\Z").next();
+			Gson gson=new Gson();
+			core=(CoreJson)gson.fromJson(s, CoreJson.class);
+			sc.close();
+		} catch (Exception e) {
+			logger.severe("could not load core, exiting...");
+			System.exit(1);
+		}
+	}
+	protected static void configureLogger()
+	{
+		FileHandler fileHandler;
+		try {
+			fileHandler = new FileHandler(core.outLog, true);
+			fileHandler.setFormatter(new SimpleFormatter());
+			logger.addHandler(fileHandler);
+		} catch (Exception e) {
+			logger.log(Level.CONFIG, "could not create log file");
+		}
+	}
 	protected static void configure(String[] args)
 	{
-		port=1234;
+		loadCore();
+		DepositFacade.instance.initDeposits(core.deposits);
+		port=core.port;
 		stdinScanner=new Scanner(System.in);
 		socketDaemon=new SocketDaemon(port);
 		socketThread=new Thread(socketDaemon);
+		configureLogger();
 	}
 
 	public static void main(String[] args)
 	{
+		logger=Logger.getAnonymousLogger();
 		configure(args);
 		String stdinLine="";
 		socketThread.start();
@@ -33,10 +71,28 @@ public class Server {
 		}
 	}
 
+	protected static void performSync()
+	{
+		logger.info("sync in progress");
+		DepositFacade.instance.syncYourDeposits(core);
+		Gson gson = new Gson();
+		String newCoreStr;
+		newCoreStr=gson.toJson(core);
+		try {
+			new PrintWriter(coreFineName).write(newCoreStr);
+		} catch (FileNotFoundException e) {
+			logger.severe("could not save json, sync failed.");
+			return ;
+		}
+		logger.info("successfully performed sync");
+	}
+
 	protected static void processStdCommand(String command)
 	{
-		//TODO: semi-auto generated method.
-		System.out.println("some input:)");
+		if(command.equalsIgnoreCase("sync"))
+			performSync();
+		else
+			logger.info("invalid command got: "+command);
 	}
 
 	protected static class SocketDaemon implements Runnable
@@ -55,17 +111,16 @@ public class Server {
 			try {
 				serverMainSocket=new ServerSocket(port);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.severe("could not create server.");
 				return ; //abort
 			}
+			logger.info("server started.");
 			while(true)
 			{
 				try {
 					newClientSocket=serverMainSocket.accept();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.severe("could not accept new connection.");
 					continue;
 				}
 				new Thread(new Clerk(newClientSocket)).start();

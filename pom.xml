@@ -3,4 +3,11 @@
   <groupId>me.moez</groupId>
   <artifactId>seca2</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+  	<dependency>
+  		<groupId>com.google.code.gson</groupId>
+  		<artifactId>gson</artifactId>
+  		<version>1.7.1</version>
+  	</dependency>
+  </dependencies>
 </project>
