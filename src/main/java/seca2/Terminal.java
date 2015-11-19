@@ -23,7 +23,7 @@ public class Terminal {
 
 	public static final Charset encoding = Charset.forName("UTF-8");
 	public static final String END_OF_LINE="\n";
-	public static final int BUFFER_SIZE=1*1024*1024;
+	public static final int BUFFER_SIZE=128*1024*1024;
 
 	protected static String serverHostName;
 	protected static int serverPort;

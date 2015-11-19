@@ -21,7 +21,7 @@ public class Clerk implements Runnable {
 	public static final long CLERK_DELAY_MS=50;
 	public static final Charset encoding = Charset.forName("UTF-8");
 	public static final String END_OF_LINE="\n";
-	public static final int BUFFER_SIZE=1*1024*1024;
+	public static final int BUFFER_SIZE=128*1024*1024;
 
 	protected byte[] buffer=new byte[BUFFER_SIZE];
 	protected String gottenRequestXML=null;
@@ -92,7 +92,9 @@ public class Clerk implements Runnable {
 			marshaller = jc.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		} catch (JAXBException e) {
+			e.printStackTrace();
 			Server.logger.log(Level.SEVERE, "for one connection, could not parse Terminal.xml");
+			return ;
 		}
 		Server.logger.log(Level.INFO, "for terminal "+terminalXML.id+" successfully parsed request");
 	}
